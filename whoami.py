@@ -37,6 +37,7 @@ class VkFriendsWalker:
             self.root_friend.friends.append(current_friend)
             self.get_friend(current_friend.user_id, current_friend)
 
+
     def get_friend(self, user_id, root_friend):
         self.terminate_number = self.terminate_number + 1
 
