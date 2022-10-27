@@ -23,6 +23,7 @@ class VkFriendsWalker:
         # startup information.
         self.interest = "domain, online, city, status"
         self.root_friend = Friend("44274786", "Александр")
+        self.has_built = False
 
         # bfs needed.
         self.terminate_number = 0
@@ -32,37 +33,39 @@ class VkFriendsWalker:
 
     def get_root_friend(self):
         self.terminate_number = self.terminate_number + 1
+
         for i, item in enumerate(self.one_friends_data["items"]):
-            current_friend = Friend(item["id"], item["first_name"])
-            self.root_friend.friends.append(current_friend)
-            self.get_friend(current_friend.user_id, current_friend)
+            self.current_friend = Friend(item["id"], item["first_name"])
+            self.root_friend.friends.append(self.current_friend)
+            self.get_friend(self.current_friend.user_id, self.current_friend)
 
 
     def get_friend(self, user_id, root_friend):
         self.terminate_number = self.terminate_number + 1
 
-        current_friend = None
-        has_built = False
+        self.current_friend = None
+        self.has_built = False
+
         for item in self.one_friends_data["items"]:
             if 'is_closed' in item and item['is_closed']:
                 print("[INFO]: CLOSED PROFILE")
                 continue
 
-            if not has_built:
+            if not self.has_built:
                 for sub_item in self.one_friends_data["items"]:
-                    current_friend = Friend(sub_item["id"], sub_item["first_name"])
+                    self.current_friend = Friend(sub_item["id"], sub_item["first_name"])
                     root_friend.count = self.one_friends_data["count"]
-                    root_friend.friends.append(current_friend)
-                    print(current_friend.first_name)
-                    has_built = True
+                    root_friend.friends.append(self.current_friend)
+                    print(self.current_friend.first_name)
+                self.has_built = True
 
-            if self.terminate_number == 10:
+            if self.terminate_number == 20:
                 self.terminate_number = self.terminate_number - 1
                 return
             try:
                 if not len(root_friend.friends) == root_friend.count:
                     self.one_friends_data = self.vk.friends.get(user_id=user_id, fields=self.interest)
-                self.get_friend(current_friend.user_id, current_friend)
+                self.get_friend(self.current_friend.user_id, self.current_friend)
             except vk_api.exceptions.ApiError:
                 print("[INFO]: DELETED")
                 continue
